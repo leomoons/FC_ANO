@@ -16,7 +16,7 @@
 /***************LED GPIO定义******************/
 #define ANO_RCC_LED			RCC_AHB1Periph_GPIOE
 #define ANO_GPIO_LED		GPIOE
-#define ANO_Pin_LED1		GPIO_Pin_3
+#define ANO_Pin_LED1		GPIO_Pin_7
 #define ANO_Pin_LED2		GPIO_Pin_2
 #define ANO_Pin_LED3		GPIO_Pin_1
 #define ANO_Pin_LED4		GPIO_Pin_0

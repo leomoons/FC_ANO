@@ -33,7 +33,7 @@ void Drv_LED_Init()
 	
 	
 	GPIO_ResetBits(ANO_GPIO_LED, ANO_Pin_LED1);		
-	GPIO_SetBits(ANO_GPIO_LED, ANO_Pin_LED2);		
+	GPIO_ResetBits(ANO_GPIO_LED, ANO_Pin_LED2);		
 	GPIO_ResetBits(ANO_GPIO_LED, ANO_Pin_LED3);		
 	GPIO_ResetBits(ANO_GPIO_LED, ANO_Pin_LED4);
 }
@@ -42,7 +42,7 @@ void Drv_LED_Init()
 
 
 u16 led_accuracy = 20;//该时间应与LED_Duty()调用周期相同
-float LED_Brightness[4] = {0,20,0,0}; //TO 20 //XBRG
+float LED_Brightness[4] = {1,0,0,0}; //TO 20 //XBRG
 
 
 //LED的1ms驱动，在1ms定时中断里调用。
