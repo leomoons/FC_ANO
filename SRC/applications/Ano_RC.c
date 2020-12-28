@@ -13,6 +13,7 @@
 #include "Drv_led.h"
 #include "Drv_sbus.h"
 #include "Ano_Sensor_Basic.h"
+#include "flightMode.h"
 
 //摇杆触发值，摇杆值范围为+-500，超过300属于触发范围
 #define UN_YAW_VALUE  300
@@ -24,7 +25,7 @@ static u8 RC_IN_MODE;
 void Remote_Control_Init()
 {
 	//
-	RC_IN_MODE = Ano_Parame.set.pwmInMode;
+	RC_IN_MODE = SBUS;
 	//
 	if(RC_IN_MODE == SBUS)
 	{
@@ -280,6 +281,21 @@ void RC_duty_task(u8 dT_ms) //建议2ms调用一次
 				{
 					//CH_N[]+1500为上位机显示通道值
 					CH_N[i] = 0.65f *((s16)Rc_Sbus_In[i] - 1024); //248 --1024 --1800,处理成大约+-500摇杆量
+					
+					if(i == AUX1)
+					{
+						if(CH_N[i]<-300)
+							SetFlightMode(MANUAL);
+						else if(CH_N[i]>-100 && CH_N[i]<100)
+							SetFlightMode(MISSION);
+						else if(CH_N[i]>300)
+							SetFlightMode(FAILSAFE);
+					}
+					if(i==AUX2 && CH_N[i]>100)
+					{
+						SetFlightMode(FAILSAFE);
+					}
+					
 				}
 				else
 				{
