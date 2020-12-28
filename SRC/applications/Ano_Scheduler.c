@@ -37,6 +37,12 @@
 #include "Ano_OPMV_Ctrl.h"
 #include "Ano_OF_DecoFusion.h"
 
+#include "param.h"
+#include "lyhDecode.h"
+#include "optitrack.h"
+#include "controller.h"
+#include "motor.h"
+#include "setPoint.h"
 
 u32 test_dT_1000hz[3],test_rT[6];
 
@@ -72,6 +78,11 @@ static void Loop_1000Hz(void)	//1ms执行一次
 	/*数传数据交换*/
 	ANO_DT_Data_Exchange();
 
+	//LYH数据解析
+	LYH_Receive_Loop();
+	
+	
+
 //////////////////////////////////////////////////////////////////////	
 			test_rT[4]= GetSysTime_us ();
 			test_rT[5] = (u32)(test_rT[4] - test_rT[3]) ;	
@@ -83,10 +94,19 @@ static void Loop_500Hz(void)	//2ms执行一次
 	Att_1level_Ctrl(2*1e-3f);
 	
 	/*电机输出控制*/
-	Motor_Ctrl_Task(2);	
+	MotorCtrlTask();
 	
 	/*UWB数据获取*/
 	Ano_UWB_Get_Data_Task(2);	
+	
+	// 获取optitrack数据
+	Opti_Get_Data_Task();
+	
+	// 主控制器
+	CtrlTask();
+	
+	//期望轨迹生成
+	SetPointUpdate();
 }
 
 static void Loop_200Hz(void)	//5ms执行一次
@@ -125,7 +145,7 @@ static void Loop_100Hz(void)	//10ms执行一次
 	AnoOF_DataAnl_Task(10);
 
 	/*灯光控制*/	
-	LED_Task2(10);
+	//LED_Task2(10);
 //////////////////////////////////////////////////////////////////////		
 			test_rT[1]= GetSysTime_us ();
 			test_rT[2] = (u32)(test_rT[1] - test_rT[0]) ;	
@@ -160,6 +180,8 @@ static void Loop_20Hz(void)	//50ms执行一次
 	Power_UpdateTask(50);
 	//恒温控制
 	Thermostatic_Ctrl_Task(50);
+	
+	ParamSaveToFlash();		//控制器参数写入flash
 }
 
 static void Loop_2Hz(void)	//500ms执行一次

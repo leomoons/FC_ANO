@@ -33,6 +33,8 @@
 #include "Ano_Sensor_Basic.h"
 #include "Drv_OpenMV.h"
 
+#include "controller.h"
+
 /////////////////////////////////////////////////////////////////////////////////////
 //数据拆分宏定义，在发送大于1字节的数据类型时，比如int16、float等，需要把数据拆分成单独字节进行发送
 #define BYTE0(dwTemp)       ( *( (char *)(&dwTemp)		) )
@@ -139,7 +141,8 @@ void ANO_DT_Data_Exchange(void)
 	else if(f.send_status)
 	{
 		f.send_status = 0;
-		ANO_DT_Send_Status(imu_data.rol,imu_data.pit,imu_data.yaw,wcz_hei_fus.out,(flag.flight_mode+1),flag.unlock_sta);	
+		//ANO_DT_Send_Status(imu_data.rol,imu_data.pit,imu_data.yaw,wcz_hei_fus.out,(flag.flight_mode+1),flag.unlock_sta);
+		ANO_DT_Send_Status(_state.euler.x,_state.euler.y,_state.euler.z,wcz_hei_fus.out,(flag.flight_mode+1),flag.unlock_sta);
 	}	
 ///////////////////////////////////////////////////////////////////////////////////////
 	else if(f.send_speed)
