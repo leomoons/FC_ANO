@@ -22,6 +22,9 @@
 #include "Ano_Sensor_Basic.h"
 #include "Drv_UP_Flow.h"
 
+#include "param.h"
+#include "controller.h"
+#include "motor.h"
 
 u8 of_init_type;
 u8 All_Init()
@@ -36,6 +39,8 @@ u8 All_Init()
 	Flash_Init();             		//板载FLASH芯片驱动初始化
 	
 	Para_Data_Init();              		//参数数据初始化
+	ParamInit();					// 控制器和扰估计参数初始化
+	
 	
 	Remote_Control_Init();
 	
@@ -61,7 +66,7 @@ u8 All_Init()
 //	if(!Drv_Laser_Init())			//激光没有有效连接，则配置为光流模式
 //		Uart4_Init(500000);
 //	Delay_ms(10);					//延时
-//	Usart3_Init(500000);			//连接UWB
+	Usart3_Init(57600);			//连接optitrack
 //	Delay_ms(10);					//延时
 
 	//	
@@ -93,6 +98,13 @@ u8 All_Init()
 //	Drv_HeatingSet(5);
 	//
 	Sensor_Basic_Init();
+	
+	
+	// 主控制器初始化
+	ControllerInit();
+	
+	// 电调PWM输出初始化
+	MotorInit();
 	//
 	ANO_DT_SendString("SYS init OK!");
 	return (1);
