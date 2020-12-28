@@ -40,6 +40,8 @@ typedef struct
 } _imu_st ;
 extern _imu_st imu_data;
 
+extern float att_matrix[3][3];
+
 typedef struct
 {
 	float gkp;
