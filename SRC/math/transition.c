@@ -130,13 +130,13 @@ void Euler_to_DCM_T(float* dcm, Vector3f_t euler)
 }
 
 /**********************************************************************************************************
-*函 数 名: DCM_to_Euler
-*功能说明: 方向余弦矩阵(机体系到参考系)转换成欧拉角
+*函 数 名: DCM_to_Euler_rad
+*功能说明: 方向余弦矩阵(机体系到参考系)转换成欧拉角(rad)
 *参   考： https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 *形    参: dcm数组头
 *返 回 值: 欧拉角向量
 **********************************************************************************************************/
-Vector3f_t DCM_to_Euler(float* dcm)
+Vector3f_t DCM_to_Euler_rad(float* dcm)
 {
 	Vector3f_t euler;
 	euler.x = 0.0f; euler.y = 0.0f; euler.z = 0.0f;
@@ -155,6 +155,22 @@ Vector3f_t DCM_to_Euler(float* dcm)
 		euler.y = fast_atan2_lyh(-dcm[6], sy);
 		euler.z = fast_atan2_lyh(dcm[3], dcm[0]);
 	}
+	return euler;
+}
+
+/**********************************************************************************************************
+*函 数 名: DCM_to_Euler_degree
+*功能说明: 方向余弦矩阵(机体系到参考系)转换成欧拉角(degree)
+*参   考： https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+*形    参: dcm数组头
+*返 回 值: 欧拉角向量
+**********************************************************************************************************/
+Vector3f_t DCM_to_Euler_degree(float* dcm)
+{
+	Vector3f_t euler = DCM_to_Euler_rad(dcm);
+	euler.x = Degrees(euler.x);
+	euler.y = Degrees(euler.y);
+	euler.z = Degrees(euler.z);
 	return euler;
 }
 

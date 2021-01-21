@@ -1,4 +1,4 @@
-/******************** (C) COPYRIGHT 2017 ANO Tech ********************************
+                  /******************** (C) COPYRIGHT 2017 ANO Tech ********************************
  * 作者    ：匿名科创
  * 官网    ：www.anotc.com
  * 淘宝    ：anotc.taobao.com
@@ -66,7 +66,7 @@ u8 All_Init()
 //	if(!Drv_Laser_Init())			//激光没有有效连接，则配置为光流模式
 //		Uart4_Init(500000);
 //	Delay_ms(10);					//延时
-	Usart3_Init(57600);			//连接optitrack
+	Usart3_Init(115200);			//连接optitrack
 //	Delay_ms(10);					//延时
 
 	//	

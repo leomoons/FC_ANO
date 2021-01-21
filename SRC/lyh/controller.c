@@ -47,7 +47,7 @@ enum
 };
 
 #define FEEDBACK_SRC	IMU_EST
-#define CONTROLLER SMC
+#define CONTROLLER PD
 #define BODYFRAME UP
 
 /**********************************************************************************************************
@@ -77,8 +77,16 @@ void ControllerInit(void)
 	_veh.Binv[3][0]=      0; _veh.Binv[3][1]= 0.4714; _veh.Binv[3][2]= 0.2357; _veh.Binv[3][3]=      0; _veh.Binv[3][4]= 1.3889; _veh.Binv[3][5]=-0.6360;
 	_veh.Binv[4][0]= 0.4082; _veh.Binv[4][1]=-0.2357; _veh.Binv[4][2]= 0.2357; _veh.Binv[4][3]=-1.2029; _veh.Binv[4][4]= 0.6945; _veh.Binv[4][5]= 0.6360;
 	_veh.Binv[5][0]=-0.4082; _veh.Binv[5][1]=-0.2357; _veh.Binv[5][2]= 0.2357; _veh.Binv[5][3]=-1.2029; _veh.Binv[5][4]=-0.6945; _veh.Binv[5][5]=-0.6360;
+
+	if(BODYFRAME == UP)
+	{
+		_veh.T = -0.004f;
+	}
+	else if(BODYFRAME == DOWN)
+	{
+		_veh.T = 0.004f;
+	}
 	
-	_veh.T = 0.004f;
 	
 	// controller choosing
 	if(CONTROLLER == PD)
@@ -171,7 +179,10 @@ void CtrlTask(void)
 			_state.R_fb[0]=att_matrix[0][0]; _state.R_fb[1]=att_matrix[0][1]; _state.R_fb[2]=att_matrix[0][2]; 
 			_state.R_fb[3]=att_matrix[1][0]; _state.R_fb[4]=att_matrix[1][1]; _state.R_fb[5]=att_matrix[1][2]; 
 			_state.R_fb[6]=att_matrix[2][0]; _state.R_fb[7]=att_matrix[2][1]; _state.R_fb[8]=att_matrix[2][2]; 
-			_state.euler.x=imu_data.rol; _state.euler.y=imu_data.pit; _state.euler.z=imu_data.yaw;
+			
+			_state.euler = DCM_to_Euler_degree(_state.R_fb);
+			_state.euler.y =-_state.euler.y;
+			_state.euler.z =-_state.euler.z;
 			
 			_state.W_fb.x = sensor.Gyro_rad[X];
 			_state.W_fb.y = sensor.Gyro_rad[Y];
@@ -182,7 +193,10 @@ void CtrlTask(void)
 			_state.R_fb[0]=att_matrix[0][0]; _state.R_fb[1]=-att_matrix[0][1]; _state.R_fb[2]=-att_matrix[0][2]; 
 			_state.R_fb[3]=att_matrix[1][0]; _state.R_fb[4]=-att_matrix[1][1]; _state.R_fb[5]=-att_matrix[1][2]; 
 			_state.R_fb[6]=att_matrix[2][0]; _state.R_fb[7]=-att_matrix[2][1]; _state.R_fb[8]=-att_matrix[2][2]; 
-			_state.euler.x=imu_data.pit; _state.euler.x=imu_data.rol; _state.euler.x=imu_data.yaw;
+			
+			_state.euler = DCM_to_Euler_degree(_state.R_fb);
+			_state.euler.y =-_state.euler.y;
+			_state.euler.z =-_state.euler.z;
 			
 			_state.W_fb.x = sensor.Gyro_rad[X];
 			_state.W_fb.y =-sensor.Gyro_rad[Y];
@@ -196,6 +210,7 @@ void CtrlTask(void)
 		_state.vel_fb = GetOptiVel();
 		
 		GetOptiAttDCM(_state.R_fb);
+		_state.euler = DCM_to_Euler_degree(_state.R_fb);
 		_state.W_fb = GetOptiAngVel();
 	}
 	

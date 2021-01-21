@@ -93,20 +93,20 @@ static void Loop_500Hz(void)	//2ms执行一次
 	/*姿态角速度环控制*/
 	Att_1level_Ctrl(2*1e-3f);
 	
-	/*电机输出控制*/
-	MotorCtrlTask();
-	
 	/*UWB数据获取*/
 	Ano_UWB_Get_Data_Task(2);	
 	
 	// 获取optitrack数据
 	Opti_Get_Data_Task();
 	
+	//期望轨迹生成
+	SetPointUpdate();
+	
 	// 主控制器
 	CtrlTask();
 	
-	//期望轨迹生成
-	SetPointUpdate();
+	/*电机输出控制*/
+	MotorCtrlTask();
 }
 
 static void Loop_200Hz(void)	//5ms执行一次
@@ -145,7 +145,7 @@ static void Loop_100Hz(void)	//10ms执行一次
 	AnoOF_DataAnl_Task(10);
 
 	/*灯光控制*/	
-	//LED_Task2(10);
+	LED_Task2(10);
 //////////////////////////////////////////////////////////////////////		
 			test_rT[1]= GetSysTime_us ();
 			test_rT[2] = (u32)(test_rT[1] - test_rT[0]) ;	

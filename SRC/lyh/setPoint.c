@@ -117,8 +117,8 @@ void AttUpdate(float dT_s, float T)
 //	IntegrateIteration(dT_s);
 	
 	/*******姿态的微分迭代生成********/
-	float pit = M_PI/5*sinf(M_PI/10*T);
-	float rol = M_PI/5*cosf(M_PI/10*T);
+	float pit = M_PI/10*sinf(M_PI/30*T);
+	float rol = M_PI/10*cosf(M_PI/30*T);
 	float yaw = 0.0f;
 	
 	_set.att[0] = cosf(pit)*cosf(yaw);
