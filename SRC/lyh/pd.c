@@ -111,10 +111,12 @@ void Attitude_Error(void)
 	Matrix3_Mul(R_fb_T, _state.R_des, tmp2);
 	Matrix3_Sub(tmp1, tmp2, tmp3);
 	
+	float trace = tmp1[0] + tmp1[4] + tmp1[8];
+	float tmp = 1/(2*Sqrt(1+trace));
 	// vee_map
-	_state.R_err.x = tmp3[7]/2;
-	_state.R_err.y = tmp3[2]/2;
-	_state.R_err.z = tmp3[3]/2;
+	_state.R_err.x = tmp3[7]*tmp;
+	_state.R_err.y = tmp3[2]*tmp;
+	_state.R_err.z = tmp3[3]*tmp;
 }
 
 /**********************************************************************************************************
