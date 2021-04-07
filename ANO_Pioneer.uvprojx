@@ -339,7 +339,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>USE_STDPERIPH_DRIVER,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>.\build;.\Libraries\STM32F4xx_StdPeriph_Driver\inc;.\Libraries\CMSIS\Include;.\Libraries\CMSIS\ST\STM32F4xx\Include;.\Libraries\USBStack\INC;.\Libraries\FatFS\src;.\SRC\applications;.\SRC\drivers;.\SRC\fc_general;.\SRC\fc_specific;.\Libraries\VL53L0X\inc</IncludePath>
+              <IncludePath>.\build;.\Libraries\STM32F4xx_StdPeriph_Driver\inc;.\Libraries\CMSIS\Include;.\Libraries\CMSIS\ST\STM32F4xx\Include;.\Libraries\USBStack\INC;.\Libraries\FatFS\src;.\SRC\applications;.\SRC\drivers;.\SRC\fc_general;.\SRC\fc_specific;.\Libraries\VL53L0X\inc;.\SRC\lyh;.\SRC\math;.\SRC\message</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -834,9 +834,129 @@
               <FilePath>.\doc\note.txt</FilePath>
             </File>
             <File>
-              <FileName>更新记录.txt</FileName>
+              <FileName>????.txt</FileName>
               <FileType>5</FileType>
-              <FilePath>.\更新记录.txt</FilePath>
+              <FilePath>.\????.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lyh</GroupName>
+          <Files>
+            <File>
+              <FileName>adaptive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\adaptive.c</FilePath>
+            </File>
+            <File>
+              <FileName>controller.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\controller.c</FilePath>
+            </File>
+            <File>
+              <FileName>disturbanceEst.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\disturbanceEst.c</FilePath>
+            </File>
+            <File>
+              <FileName>flightMode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\flightMode.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>ndob.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\ndob.c</FilePath>
+            </File>
+            <File>
+              <FileName>pd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\pd.c</FilePath>
+            </File>
+            <File>
+              <FileName>setPoint.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\setPoint.c</FilePath>
+            </File>
+            <File>
+              <FileName>smc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\lyh\smc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>math</GroupName>
+          <Files>
+            <File>
+              <FileName>lowPassFilter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\math\lowPassFilter.c</FilePath>
+            </File>
+            <File>
+              <FileName>mathTool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\math\mathTool.c</FilePath>
+            </File>
+            <File>
+              <FileName>matrix3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\math\matrix3.c</FilePath>
+            </File>
+            <File>
+              <FileName>matrix6.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\math\matrix6.c</FilePath>
+            </File>
+            <File>
+              <FileName>rotation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\math\rotation.c</FilePath>
+            </File>
+            <File>
+              <FileName>transition.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\math\transition.c</FilePath>
+            </File>
+            <File>
+              <FileName>vector3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\math\vector3.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>message</GroupName>
+          <Files>
+            <File>
+              <FileName>lyhDecode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\message\lyhDecode.c</FilePath>
+            </File>
+            <File>
+              <FileName>param.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\message\param.c</FilePath>
+            </File>
+            <File>
+              <FileName>ros.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\message\ros.c</FilePath>
+            </File>
+            <File>
+              <FileName>mat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\message\mat.c</FilePath>
+            </File>
+            <File>
+              <FileName>Ano_DTv7.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SRC\message\Ano_DTv7.c</FilePath>
             </File>
           </Files>
         </Group>
