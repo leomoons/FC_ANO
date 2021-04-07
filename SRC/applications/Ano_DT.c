@@ -34,6 +34,8 @@
 #include "Drv_OpenMV.h"
 
 #include "controller.h"
+#include "disturbanceEst.h"
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 //数据拆分宏定义，在发送大于1字节的数据类型时，比如int16、float等，需要把数据拆分成单独字节进行发送
@@ -79,7 +81,7 @@ void ANO_DT_Data_Exchange(void)
 	static u16 rcdata_cnt 	= 20;
 	static u16 motopwm_cnt	= 20;
 	static u16 power_cnt	= 50;
-	static u16 speed_cnt   	= 50;
+	static u16 speed_cnt   	= 30;
 	static u16 sensorsta_cnt = 500;
 	static u16 omv_cnt = 100;
 	static u16 location_cnt = 500;
@@ -90,39 +92,39 @@ void ANO_DT_Data_Exchange(void)
 		f.send_senser = 1;
 
 	if((cnt % senser2_cnt) == (senser2_cnt-1))
-		f.send_senser2 = 1;	
+		f.send_senser2 = 0;	
 
 	if((cnt % user_cnt) == (user_cnt-2))
-		f.send_user = 1;
+		f.send_user = 0;
 	
 	if((cnt % status_cnt) == (status_cnt-1))
-		f.send_status = 1;	
+		f.send_status = 0;	
 	
 	if((cnt % rcdata_cnt) == (rcdata_cnt-1))
-		f.send_rcdata = 1;	
+		f.send_rcdata = 0;	
 	
 	if((cnt % motopwm_cnt) == (motopwm_cnt-2))
-		f.send_motopwm = 1;	
+		f.send_motopwm = 0;	
 	
 	if((cnt % power_cnt) == (power_cnt-2))
-		f.send_power = 1;		
+		f.send_power = 0;		
 	
 	if((cnt % speed_cnt) == (speed_cnt-3))
 		f.send_speed = 1;		
 	
 	if((cnt % sensorsta_cnt) == (sensorsta_cnt-2))
 	{
-		f.send_sensorsta = 1;		
+		f.send_sensorsta = 0;		
 	}	
 	
 	if((cnt % omv_cnt) == (omv_cnt-2))
 	{
-		flag_send_omv = 1;		
+		flag_send_omv = 0;		
 	}	
 	
 	if((cnt % location_cnt) == (location_cnt-3))
 	{
-		f.send_location = 1;		
+		f.send_location = 0;		
 	}
 	
 	if(++cnt>1000) cnt = 0;
@@ -142,13 +144,14 @@ void ANO_DT_Data_Exchange(void)
 	{
 		f.send_status = 0;
 		//ANO_DT_Send_Status(imu_data.rol,imu_data.pit,imu_data.yaw,wcz_hei_fus.out,(flag.flight_mode+1),flag.unlock_sta);
-		ANO_DT_Send_Status(_state.euler.x,_state.euler.y,_state.euler.z,wcz_hei_fus.out,(flag.flight_mode+1),flag.unlock_sta);
+		ANO_DT_Send_Status(_state.euler_fb.x,_state.euler_fb.y,_state.euler_fb.z,wcz_hei_fus.out,(flag.flight_mode+1),flag.unlock_sta);
 	}	
 ///////////////////////////////////////////////////////////////////////////////////////
 	else if(f.send_speed)
 	{
 		f.send_speed = 0;
-		ANO_DT_Send_Speed(loc_ctrl_1.fb[Y],loc_ctrl_1.fb[X],loc_ctrl_1.fb[Z]);
+		ANO_DT_Send_Speed(_est.M_b.x, _est.M_b.y, _est.M_b.z);
+		
 	}
 ///////////////////////////////////////////////////////////////////////////////////////
 	else if(f.send_user)
@@ -160,7 +163,10 @@ void ANO_DT_Data_Exchange(void)
 	else if(f.send_senser)
 	{
 		f.send_senser = 0;
-		ANO_DT_Send_Senser(sensor.Acc[X],sensor.Acc[Y],sensor.Acc[Z],sensor.Gyro[X],sensor.Gyro[Y],sensor.Gyro[Z],mag.val[X],mag.val[Y],mag.val[Z]);
+		//ANO_DT_Send_Senser(sensor.Acc[X],sensor.Acc[Y],sensor.Acc[Z],sensor.Gyro[X],sensor.Gyro[Y],sensor.Gyro[Z],mag.val[X],mag.val[Y],mag.val[Z]);
+		ANO_DT_Send_Senser((s16)(_state.euler_des.x*100),(s16)(_state.euler_des.y*100),(s16)(_state.euler_des.z*100), \
+												(s16)(_state.euler_fb.x*100),(s16)(_state.euler_fb.y*100),(s16)(_state.euler_fb.z*100), \
+												(s16)(_ctrl.M_b.x*100),(s16)(_ctrl.M_b.y*100),(s16)(_ctrl.M_b.z*100));
 	}	
 /////////////////////////////////////////////////////////////////////////////////////
 	else if(f.send_senser2)
@@ -645,13 +651,13 @@ void ANO_DT_Send_Speed(float x_s,float y_s,float z_s)
 	data_to_send[_cnt++]=0x0B;
 	data_to_send[_cnt++]=0;
 	
-	_temp = (int)(0.1f *x_s);
+	_temp = (int)(1000 *x_s);
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
-	_temp = (int)(0.1f *y_s);
+	_temp = (int)(1000 *y_s);
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
-	_temp = (int)(0.1f *z_s);
+	_temp = (int)(1000 *z_s);
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
 	
@@ -969,7 +975,7 @@ void ANO_DT_SendString(const char *str)
 	
 	data_to_send[_cnt++]=sum;
 
-	ANO_DT_Send_Data(data_to_send, _cnt);
+	//ANO_DT_Send_Data(data_to_send, _cnt);
 }
 void ANO_DT_SendStrVal(const char *str, s32 val)
 {
@@ -1095,10 +1101,7 @@ void ANO_DT_SendOmvLt(u8 sta, s16 angle, s16 offset, u8 pflag, s16 x, s16 y, u8 
 
 
 //用户自定义数据发送
-#include "Ano_MotionCal.h"
-#include "Ano_OPMV_CBTracking_Ctrl.h"
-#include "Drv_OpenMV.h"
-#include "Ano_OF_DecoFusion.h"
+#include "controller.h"
 void ANO_DT_Send_User()
 {
 	u8 _cnt=0;
@@ -1130,27 +1133,27 @@ void ANO_DT_Send_User()
 ////=====================================
 ////=====================================
 	
-	_temp = (s16)(ano_opmv_cbt_ctrl.opmv_pos[1] );//         //1
+	_temp = (s16)(1);//         //1
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);		
 	
-	_temp = (s16)(ano_opmv_cbt_ctrl.decou_pos_pixel[1] );//         //2
+	_temp = (s16)(10 );//         //2
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);	
 		
-	_temp = (s16)(ano_opmv_cbt_ctrl.ground_pos_err_h_cm[1] );//         //3
+	_temp = (s16)(20 );//         //3
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
 	
-	_temp = (s16)(ano_opmv_cbt_ctrl.ground_pos_err_d_h_cmps[1] );//4
+	_temp = (s16)(100 );//4
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);	
 	
-	_temp = (s16)(ano_opmv_cbt_ctrl.target_gnd_velocity_cmps[1]); //5
+	_temp = (s16)(-12); //5
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);	
 
-	_temp = (s16)(ano_opmv_cbt_ctrl.exp_velocity_h_cmps[1]); //6
+	_temp = (s16)(-123); //6
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);	
 
@@ -1229,7 +1232,7 @@ void ANO_DT_Send_User()
 	
 	data_to_send[_cnt++]=sum;
 
-	ANO_DT_Send_Data(data_to_send, _cnt);
+ 	ANO_DT_Send_Data(data_to_send, _cnt);
 }
 
 

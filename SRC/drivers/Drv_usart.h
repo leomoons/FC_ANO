@@ -10,7 +10,7 @@ void Usart2_Send(unsigned char *DataToSend ,u8 data_num);
 
 void Usart3_Init ( u32 br_num );
 void Usart3_IRQ ( void );
-static void Usart3_Send ( unsigned char *DataToSend , u8 data_num );
+void Usart3_Send ( unsigned char *DataToSend , u8 data_num );
 
 void Uart4_Init(u32 br_num);
 void Uart4_IRQ(void);

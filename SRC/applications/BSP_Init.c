@@ -25,6 +25,7 @@
 #include "param.h"
 #include "controller.h"
 #include "motor.h"
+#include "Ano_DTv7.h"
 
 u8 of_init_type;
 u8 All_Init()
@@ -60,13 +61,15 @@ u8 All_Init()
 	Usb_Hid_Init();					//飞控usb接口的hid初始化
 	Delay_ms(100);					//延时
 	
-	Usart2_Init(500000);			//串口2初始化，函数参数为波特率
+	ANO_DT_Init();
+	
+	Usart2_Init(115200);			//串口2初始化，函数参数为波特率
 	Delay_ms(10);					//延时	
 //	Uart4_Init(115200);				//首先判断是否连接的是激光模块
 //	if(!Drv_Laser_Init())			//激光没有有效连接，则配置为光流模式
 //		Uart4_Init(500000);
 //	Delay_ms(10);					//延时
-	Usart3_Init(115200);			//连接optitrack
+	Usart3_Init(115200);			//用于和ros端通信
 //	Delay_ms(10);					//延时
 
 	//	
