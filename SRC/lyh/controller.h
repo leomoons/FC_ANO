@@ -35,6 +35,8 @@ typedef struct
 	
 	float R_des[9];
 	float R_fb[9];
+	float q_des[4];
+	float q_fb[4];
 	Vector3f_t W_des;
 	Vector3f_t W_fb;
 	Vector3f_t W_dot_des;
@@ -46,7 +48,8 @@ typedef struct
 	Vector3f_t W_err;
 	
 	// euler angle
-	Vector3f_t euler;
+	Vector3f_t euler_des;
+	Vector3f_t euler_fb;
 }droneState_t;
 extern droneState_t _state;
 

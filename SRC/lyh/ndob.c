@@ -1,4 +1,4 @@
-/**********************************************************************************************************
+ /**********************************************************************************************************
  * @文件     ndob.c
  * @说明     外界扰动的非线性扰动观测器算法估计
  * @版本  	 V1.0
@@ -7,11 +7,108 @@
 **********************************************************************************************************/
 #include "ndob.h"
 #include "Drv_time.h"
+#include "mathConfig.h"
 
 #include "controller.h"
-#include "optitrack.h"
+#include "mat.h"
 
 nDOB_t _dob;
+
+/**********************************************************************************************************
+*函 数 名: ndobForceOutput
+*功能说明: 非线性扰动力观测输出
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void ndobForceOutput(void)
+{
+	
+	Vector3f_t pv = Matrix3MulVector3(_dob.KoP, _state.vel_fb);
+	// Output process
+	_dob.F_I = Vector3f_Add(_dob.zP, pv);
+	
+}
+
+/**********************************************************************************************************
+*函 数 名: ndobForceUpdate
+*功能说明: 非线性扰动力观测更迭代
+*形    参: 步长时间 dT_s
+*返 回 值: 无
+**********************************************************************************************************/
+static void ndobForceUpdate(float dT_s)
+{	
+	/************定义中间变量***************/
+	Vector3f_t v1, v2, v3, v4, v5, v6, v7;
+	Vector3f_t pv = Matrix3MulVector3(_dob.KoP, _state.vel_fb);
+
+	// Update process
+	v1.x=0.0f; v1.y=0.0f; v1.z=_veh.mass*GRAVITY_ACCEL;	//third element in the brackets
+	v2 = Matrix3MulVector3(_state.R_fb, _ctrl.F_b);				//fourth element in the brackets
+	
+	v3 = Vector3f_Add(_dob.zP, pv);
+	v4 = Vector3f_Sub(v3, v1);
+	v5 = Vector3f_Add(v4, v2);
+	v6.x = v5.x/_veh.mass; v6.y = v5.y/_veh.mass; v6.z = v5.z/_veh.mass; 
+	v7 = Matrix3MulVector3(_dob.KoP, v6);
+	_dob.zP_dot.x=-v7.x; _dob.zP_dot.y=-v7.y; _dob.zP_dot.z=-v7.z; 
+	
+	_dob.zP.x = _dob.zP.x+_dob.zP_dot.x * dT_s;
+	_dob.zP.y = _dob.zP.y+_dob.zP_dot.y * dT_s; 
+	_dob.zP.z = _dob.zP.z+_dob.zP_dot.z * dT_s; 
+	
+
+//	_dob.zP_dot.x = ConstrainFloat(_dob.zP_dot.x, -100.0, 100.0);
+//	_dob.zP_dot.y = ConstrainFloat(_dob.zP_dot.y, -100.0, 100.0);
+//	_dob.zP_dot.z = ConstrainFloat(_dob.zP_dot.z, -100.0, 100.0);
+}
+
+/**********************************************************************************************************
+*函 数 名: ndobForceOutput
+*功能说明: 非线性扰动力矩观测输出
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void ndobMomentOutput(void)
+{
+	Vector3f_t pW = Matrix3MulVector3(_dob.KoR, _state.W_fb);
+	// Output process
+	_dob.M_b = Vector3f_Add(_dob.zR, pW);
+}
+
+/**********************************************************************************************************
+*函 数 名: ndobMomentUpdate
+*功能说明: 非线性姿态扰动力矩观测更迭代
+*形    参: 步长时间 dT_s
+*返 回 值: 无
+**********************************************************************************************************/
+static void ndobMomentUpdate(float dT_s)
+{
+	/********定义中间变量***********/
+	Vector3f_t v1, v2, v3, v4, v5, v6;
+	float W_fb_hat[9], m1[9];
+	
+	Vector3f_t pW = Matrix3MulVector3(_dob.KoR, _state.W_fb);
+
+	
+	// Update Process
+
+	Hat_Map(W_fb_hat, _state.W_fb);
+	Matrix3_Mul(W_fb_hat, _veh.J, m1);
+	v1 = Matrix3MulVector3(m1, _state.W_fb);	//WxJW
+		
+	v2 = Vector3f_Add(_dob.zR, pW);
+	v3 = Vector3f_Sub(v2, v1);
+	v4 = Vector3f_Add(v3, _ctrl.M_b);
+	
+	v5 = Matrix3MulVector3(_veh.J_inv, v4);
+	v6 = Matrix3MulVector3(_dob.KoR, v5);
+	_dob.zR_dot.x=-v6.x; _dob.zR_dot.y=-v6.y; _dob.zR_dot.z=-v6.z;
+	
+	_dob.zR.x = _dob.zR.x+_dob.zR_dot.x * dT_s;
+	_dob.zR.y = _dob.zR.y+_dob.zR_dot.y * dT_s; 
+	_dob.zR.z = _dob.zR.z+_dob.zR_dot.z * dT_s;
+	
+}
 
 /**********************************************************************************************************
 *函 数 名: ndobInit
@@ -21,100 +118,57 @@ nDOB_t _dob;
 **********************************************************************************************************/
 void ndobInit(void)
 {
-	_dob.Kox[0] =-15.0f; _dob.Kox[1] =     0; _dob.Kox[2] =      0;
-	_dob.Kox[3] =     0; _dob.Kox[4] =-15.0f; _dob.Kox[5] =      0;
-	_dob.Kox[6] =     0; _dob.Kox[7] =     0; _dob.Kox[8] = -15.0f;
+	_dob.KoP[0] = 3.0f; _dob.KoP[1] =     0; _dob.KoP[2] =     0;
+	_dob.KoP[3] =    0; _dob.KoP[4] = 3.0f; _dob.KoP[5] =     0;
+	_dob.KoP[6] =    0; _dob.KoP[7] =     0; _dob.KoP[8] = 3.0f;
+	//P_x1=0.0; P_y1=0.0; P_z1=0.0;
+	_dob.zP.x = 0.0; _dob.zP.y = 0.0; _dob.zP.z = 0.0;
+	_dob.zP_dot.x = 0.0; _dob.zP_dot.y = 0.0; _dob.zP_dot.z = 0.0;
 	
-	_dob.KoR[0] =-15.0f; _dob.KoR[1] =     0; _dob.KoR[2] =     0;
-	_dob.KoR[3] =     0; _dob.KoR[4] =-15.0f; _dob.KoR[5] =     0;
-	_dob.KoR[6] =     0; _dob.KoR[7] =     0; _dob.KoR[8] =-15.0f;
-	
-	
+	_dob.KoR[0] = 0.03f;  _dob.KoR[1] =     0; _dob.KoR[2] =     0;
+	_dob.KoR[3] =     0; _dob.KoR[4] = 0.03f; _dob.KoR[5] =     0;
+	_dob.KoR[6] =     0; _dob.KoR[7] =     0; _dob.KoR[8] = 0.03f;
+	//R_x1=0.0; R_y1=0.0; R_z1=0.0;
+	_dob.zR.x = 0.0; _dob.zR.y = 0.0; _dob.zR.z = 0.0;
+	_dob.zR_dot.x = 0.0; _dob.zR_dot.y = 0.0; _dob.zR_dot.z = 0.0;
 }
 
 /**********************************************************************************************************
-*函 数 名: ndobForceUpdate
-*功能说明: 非线性扰动力观测更迭代
-*形    参: 无
+*函 数 名: ndobOutput
+*功能说明: 非线性扰动观测器输出
+*形    参: 步长时间
 *返 回 值: 无
 **********************************************************************************************************/
-static void ndobForceUpdate(void)
+void ndobOutput(void)
 {
-	static uint64_t pT6;
-	float dT_s = (GetSysTime_us() - pT6) * 1e-6;
-	dT_s = ConstrainFloat(dT_s , 0.0005, 0.002);
-	pT6 = GetSysTime_us();
-	
-	static Vector3f_t zx_dot, zx, pv_nega;
-	
-	//获得惯性坐标下的速度反馈和姿态转换矩阵
-	Vector3f_t v_fb = GetOptiVel();
-	float R_fb_T[9];
-	Matrix3_Tran(_state.R_fb, R_fb_T);
-	
-	/************定义中间变量***************/
-	Vector3f_t tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
-	
-	pv_nega = Matrix3MulVector3(_dob.Kox, v_fb);		//second element in the brackets
-	tmp1.x=0.0f; tmp1.y=0.0f; tmp1.z=GRAVITY_ACCEL;	//third element in the brackets
-	tmp2 = Matrix3MulVector3(_state.R_fb, _ctrl.F_b);				//fourth element in the brackets
-	
-	tmp3 = Vector3f_Sub(zx, pv_nega);
-	tmp4 = Vector3f_Sub(tmp3, tmp1);
-	tmp5 = Vector3f_Add(tmp4, tmp2);
-	
-	tmp6.x = tmp5.x/_veh.mass; tmp6.y = tmp5.y/_veh.mass; tmp6.z = tmp5.z/_veh.mass; 
-	zx_dot = Matrix3MulVector3(_dob.Kox, tmp6);
-	
-	zx.x += (zx_dot.x * dT_s); zx.y += (zx_dot.y * dT_s); zx.z += (zx_dot.z * dT_s); 	//integration
-	tmp7 = Vector3f_Sub(zx, pv_nega);	//Force estimation in inerita frame
-	
-	_dob._est.F_b = Matrix3MulVector3(R_fb_T, tmp7);
-}
-
-/**********************************************************************************************************
-*函 数 名: ndobMomentUpdate
-*功能说明: 非线性姿态扰动力矩观测更迭代
-*形    参: 无
-*返 回 值: 无
-**********************************************************************************************************/
-static void ndobMomentUpdate(void)
-{
-	static uint64_t pT7;
-	float dT_s = (GetSysTime_us() - pT7) * 1e-6;
-	dT_s = ConstrainFloat(dT_s , 0.0005, 0.002);
-	pT7 = GetSysTime_us();
-	
-	static Vector3f_t zR_dot, zR, pW_nega;
-	
-	
-	/********定义中间变量***********/
-	Vector3f_t tmp1, tmp2, tmp3, tmp4, tmp5, tmp6;
-	
-	pW_nega = Matrix3MulVector3(_dob.KoR, _state.W_fb);		//second element in the brackets
-	tmp1 = Matrix3MulVector3(_veh.J, _state.W_fb);
-	tmp2 = VectorCrossProduct(_state.W_fb, tmp1);			//third element in the brackets
-	
-	
-	tmp3 = Vector3f_Sub(zR, pW_nega);
-	tmp4 = Vector3f_Sub(tmp3, tmp2);
-	tmp5 = Vector3f_Add(tmp4, _ctrl.M_b);
-
-	tmp6 = Matrix3MulVector3(_veh.J_inv, tmp5);
-	zR_dot = Matrix3MulVector3(_dob.KoR, tmp6);
-	
-	zR.x += (zR_dot.x * dT_s); zR.y += (zR_dot.y * dT_s); zR.z += (zR_dot.z * dT_s); 	//integration
-	_dob._est.M_b = Vector3f_Sub(zR, pW_nega);
+	ndobForceOutput();
+	ndobMomentOutput();
 }
 
 /**********************************************************************************************************
 *函 数 名: ndobUpdate
-*功能说明: 非线性扰动观测器主函数
+*功能说明: 非线性扰动观测器状态更新
+*形    参: 步长时间
+*返 回 值: 无
+**********************************************************************************************************/
+void ndobUpdate(float dT_s)
+{	
+	ndobForceUpdate(dT_s);
+	ndobMomentUpdate(dT_s);
+}
+
+/**********************************************************************************************************
+*函 数 名: ndobZero
+*功能说明: 非线性扰动观测器状态清零
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void ndobUpdate(void)
-{	
-	ndobForceUpdate();
-	ndobMomentUpdate();
+void ndobZero(void)
+{
+	_dob.F_I.x = _dob.F_I.y = _dob.F_I.z = 0.0f;
+	_dob.M_b.x = _dob.M_b.y = _dob.M_b.z = 0.0f;
+	_dob.zP.x = _dob.zP.y = _dob.zP.z = 0.0f;
+	_dob.zR.x = _dob.zR.y = _dob.zR.z = 0.0f;
+	_dob.zP_dot.x = _dob.zP_dot.y = _dob.zP_dot.z = 0.0f;
+	_dob.zR_dot.x = _dob.zR_dot.y = _dob.zR_dot.z = 0.0f;
 }

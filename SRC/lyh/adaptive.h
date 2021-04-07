@@ -17,12 +17,24 @@ typedef struct
 	float Bx;
 	float BR;
 	
-	estimate_set_t _est;
+	
+	Vector3f_t F_I;
+	Vector3f_t M_b;
+	
+	
+	Vector3f_t dx;
+	Vector3f_t dR;
+	Vector3f_t dx_dot;
+	Vector3f_t dR_dot;
+	
 }adaptive_t;
 extern adaptive_t _ada;
 
 void adaptiveInit(void);
 
-void adaptiveUpdate(void);
+void adaptiveOutput(void);
+void adaptiveUpdate(float dT_s);
+
+void adaptiveZero(void);
 
 #endif

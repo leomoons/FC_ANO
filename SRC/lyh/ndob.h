@@ -6,15 +6,24 @@
 typedef struct
 {
 	// Coefficient
-	float Kox[9];
+	float KoP[9];
 	float KoR[9];
 	
-	estimate_set_t _est;
+	Vector3f_t zP;
+	Vector3f_t zR;
+	
+	Vector3f_t zP_dot;
+	Vector3f_t zR_dot;
+	
+	Vector3f_t F_I;
+	Vector3f_t M_b;
 }nDOB_t;
 extern nDOB_t _dob;
 
 void ndobInit(void);
 
-void ndobUpdate(void);
+void ndobUpdate(float dT_s);
+void ndobOutput(void);
 
+void ndobZero(void);
 #endif

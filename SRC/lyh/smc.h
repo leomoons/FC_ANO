@@ -22,6 +22,7 @@ typedef struct
 	Vector3f_t Ma;	
 	Vector3f_t Ms;
 }smc_ctrl_t;
+extern smc_ctrl_t _smc;
 
 void smcCtrlInit(void);
 void smcCtrlUpdateParam(uint16_t param, float data);

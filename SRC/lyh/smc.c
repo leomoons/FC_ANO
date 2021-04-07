@@ -12,7 +12,7 @@
 #include "pd.h"
 
 smc_ctrl_t _smc;
-float delta[6] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+float delta[6] = {0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f};
 
 /**********************************************************************************************************
 *函 数 名: smcCtrlInit
@@ -182,10 +182,10 @@ static Vector3f_t MomentCal(void)
 {
 	/***********定义计算中间量***************/
 	Vector3f_t v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14;
-	float m1[9];
+	float m1[9], m2[9];
 	Vector3f_t alpha_d;
 	float R_fb_T[9], W_fb_hat[9];
-	float I3[9], E[9];
+	float I3[9], E[9], eReR[9];
 	Matrix3_Eye(I3);
 	
 	/*********姿态和角速度误差向量************/
@@ -208,10 +208,15 @@ static Vector3f_t MomentCal(void)
 	
 	/********计算中间变量E***********/
 	Matrix3_Mul(R_fb_T, _state.R_des, m1);
-	float tmp1 = Matrix3_Trace(m1);
-	Scalar_Matrix3(tmp1, I3);
-	Matrix3_Sub(I3, m1, E);
-	Scalar_Matrix3(0.5f, E);
+	float trace = Matrix3_Trace(m1);
+	eReR[0] = 2*_state.R_err.x*_state.R_err.x; eReR[1] = 2*_state.R_err.x*_state.R_err.y; eReR[2] = 2*_state.R_err.x*_state.R_err.z;
+	eReR[3] = 2*_state.R_err.y*_state.R_err.x; eReR[4] = 2*_state.R_err.y*_state.R_err.y; eReR[5] = 2*_state.R_err.y*_state.R_err.z;
+	eReR[6] = 2*_state.R_err.z*_state.R_err.x; eReR[7] = 2*_state.R_err.z*_state.R_err.y; eReR[8] = 2*_state.R_err.z*_state.R_err.z;
+	Scalar_Matrix3(trace, I3);
+	Matrix3_Sub(I3, m1, m2);
+	Matrix3_Add(m2, eReR,E);
+	float ftmp = 0.5f/(Sqrt(1+trace));
+	Scalar_Matrix3(ftmp, E);
 	
 	/********计算控制力矩中的补偿项Ma******/
 	v7 = Matrix3MulVector3(_veh.J, _state.W_fb);	// First element
