@@ -13,6 +13,8 @@
 #include "include.h"
 #include "Drv_UP_Flow.h"
 #include "lyhDecode.h"
+#include "mat.h"
+
 
 //====uart2
 void Usart2_Init ( u32 br_num )
@@ -102,8 +104,9 @@ void Usart2_IRQ ( void )
         USART_ClearITPendingBit ( USART2, USART_IT_RXNE ); //清除中断标志
 
         com_data = USART2->DR;
-        ANO_DT_Data_Receive_Prepare ( com_data );
+        //ANO_DT_Data_Receive_Prepare ( com_data );
 				LYH_Data_Receive_Prepare(com_data);
+				//Mat_Get_Byte(com_data);
     }
     //发送（进入移位）中断
     if ( USART_GetITStatus ( USART2, USART_IT_TXE ) )
@@ -142,7 +145,7 @@ void Usart2_Send ( unsigned char *DataToSend , u8 data_num )
 
 //====uart3
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#include "optitrack.h"
+#include "ros.h"
 void Usart3_Init ( u32 br_num )
 {
     USART_InitTypeDef USART_InitStructure;
@@ -217,7 +220,7 @@ void Usart3_IRQ ( void )
     {
         USART_ClearITPendingBit ( USART3, USART_IT_RXNE ); //清除中断标志
         com_data = USART3->DR;
-				Opti_Get_Byte(com_data);
+				Ros_Get_Byte(com_data);
     }
     //发送（进入移位）中断
     if ( USART_GetITStatus ( USART3, USART_IT_TXE ) )
@@ -230,7 +233,7 @@ void Usart3_IRQ ( void )
     }
 }
 
-static void Usart3_Send ( unsigned char *DataToSend , u8 data_num )
+void Usart3_Send ( unsigned char *DataToSend , u8 data_num )
 {
     u8 i;
     for ( i = 0; i < data_num; i++ )

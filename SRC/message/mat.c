@@ -8,7 +8,6 @@
 #include "mat.h"
 #include "controller.h"
 #include "Drv_usart.h"
-#include "controller.h"
 
 #define MYHWADDR 0x05
 
@@ -28,7 +27,7 @@ matData _mat;
 *返 回 值: void
 **********************************************************************************************************/
 //Mat_data_len记录一帧数据的所有字节长度，包含了校验用的四个字节
-uint8_t Mat_RxBuffer[220], Mat_data_len, Mat_Data_OK;
+uint8_t Mat_RxBuffer[180], Mat_data_len, Mat_Data_OK;
 void Mat_Get_Byte(uint8_t byte)
 {
 	static uint8_t _data_len = 0;
@@ -130,39 +129,29 @@ void Mat_Get_Data_Task(void)
 		_mat.vel_fb.y = ((float)((s32)(((*(Mat_RxBuffer+118))<<24) + ((*(Mat_RxBuffer+117))<<16) + ((*(Mat_RxBuffer+116))<<8) + (*(Mat_RxBuffer+115)))))/10000000;
 		_mat.vel_fb.z = ((float)((s32)(((*(Mat_RxBuffer+122))<<24) + ((*(Mat_RxBuffer+121))<<16) + ((*(Mat_RxBuffer+120))<<8) + (*(Mat_RxBuffer+119)))))/10000000;
 			
-		_mat.force.x = ((float)((s32)(((*(Mat_RxBuffer+126))<<24) + ((*(Mat_RxBuffer+125))<<16) + ((*(Mat_RxBuffer+124))<<8) + (*(Mat_RxBuffer+123)))))/10000000;
-		_mat.force.y = ((float)((s32)(((*(Mat_RxBuffer+130))<<24) + ((*(Mat_RxBuffer+129))<<16) + ((*(Mat_RxBuffer+128))<<8) + (*(Mat_RxBuffer+127)))))/10000000;
-		_mat.force.z = ((float)((s32)(((*(Mat_RxBuffer+134))<<24) + ((*(Mat_RxBuffer+133))<<16) + ((*(Mat_RxBuffer+132))<<8) + (*(Mat_RxBuffer+131)))))/10000000;
+		_mat.R_fb[0] = ((float)((s32)(((*(Mat_RxBuffer+126))<<24) + ((*(Mat_RxBuffer+125))<<16) + ((*(Mat_RxBuffer+124))<<8) + (*(Mat_RxBuffer+123)))))/10000000;
+		_mat.R_fb[3] = ((float)((s32)(((*(Mat_RxBuffer+130))<<24) + ((*(Mat_RxBuffer+129))<<16) + ((*(Mat_RxBuffer+128))<<8) + (*(Mat_RxBuffer+127)))))/10000000;
+		_mat.R_fb[6] = ((float)((s32)(((*(Mat_RxBuffer+134))<<24) + ((*(Mat_RxBuffer+133))<<16) + ((*(Mat_RxBuffer+132))<<8) + (*(Mat_RxBuffer+131)))))/10000000;
+		_mat.R_fb[1] = ((float)((s32)(((*(Mat_RxBuffer+138))<<24) + ((*(Mat_RxBuffer+137))<<16) + ((*(Mat_RxBuffer+136))<<8) + (*(Mat_RxBuffer+135)))))/10000000;
+		_mat.R_fb[4] = ((float)((s32)(((*(Mat_RxBuffer+142))<<24) + ((*(Mat_RxBuffer+141))<<16) + ((*(Mat_RxBuffer+140))<<8) + (*(Mat_RxBuffer+139)))))/10000000;
+		_mat.R_fb[7] = ((float)((s32)(((*(Mat_RxBuffer+146))<<24) + ((*(Mat_RxBuffer+145))<<16) + ((*(Mat_RxBuffer+144))<<8) + (*(Mat_RxBuffer+143)))))/10000000;
+		_mat.R_fb[2] = ((float)((s32)(((*(Mat_RxBuffer+150))<<24) + ((*(Mat_RxBuffer+149))<<16) + ((*(Mat_RxBuffer+148))<<8) + (*(Mat_RxBuffer+147)))))/10000000;
+		_mat.R_fb[5] = ((float)((s32)(((*(Mat_RxBuffer+154))<<24) + ((*(Mat_RxBuffer+153))<<16) + ((*(Mat_RxBuffer+152))<<8) + (*(Mat_RxBuffer+151)))))/10000000;
+		_mat.R_fb[8] = ((float)((s32)(((*(Mat_RxBuffer+158))<<24) + ((*(Mat_RxBuffer+157))<<16) + ((*(Mat_RxBuffer+156))<<8) + (*(Mat_RxBuffer+155)))))/10000000;
 			
-		_mat.R_fb[0] = ((float)((s32)(((*(Mat_RxBuffer+138))<<24) + ((*(Mat_RxBuffer+137))<<16) + ((*(Mat_RxBuffer+136))<<8) + (*(Mat_RxBuffer+135)))))/10000000;
-		_mat.R_fb[3] = ((float)((s32)(((*(Mat_RxBuffer+142))<<24) + ((*(Mat_RxBuffer+141))<<16) + ((*(Mat_RxBuffer+140))<<8) + (*(Mat_RxBuffer+139)))))/10000000;
-		_mat.R_fb[6] = ((float)((s32)(((*(Mat_RxBuffer+146))<<24) + ((*(Mat_RxBuffer+145))<<16) + ((*(Mat_RxBuffer+144))<<8) + (*(Mat_RxBuffer+143)))))/10000000;
-		_mat.R_fb[1] = ((float)((s32)(((*(Mat_RxBuffer+150))<<24) + ((*(Mat_RxBuffer+149))<<16) + ((*(Mat_RxBuffer+148))<<8) + (*(Mat_RxBuffer+147)))))/10000000;
-		_mat.R_fb[4] = ((float)((s32)(((*(Mat_RxBuffer+154))<<24) + ((*(Mat_RxBuffer+153))<<16) + ((*(Mat_RxBuffer+152))<<8) + (*(Mat_RxBuffer+151)))))/10000000;
-		_mat.R_fb[7] = ((float)((s32)(((*(Mat_RxBuffer+158))<<24) + ((*(Mat_RxBuffer+157))<<16) + ((*(Mat_RxBuffer+156))<<8) + (*(Mat_RxBuffer+155)))))/10000000;
-		_mat.R_fb[2] = ((float)((s32)(((*(Mat_RxBuffer+162))<<24) + ((*(Mat_RxBuffer+161))<<16) + ((*(Mat_RxBuffer+160))<<8) + (*(Mat_RxBuffer+159)))))/10000000;
-		_mat.R_fb[5] = ((float)((s32)(((*(Mat_RxBuffer+166))<<24) + ((*(Mat_RxBuffer+165))<<16) + ((*(Mat_RxBuffer+164))<<8) + (*(Mat_RxBuffer+163)))))/10000000;
-		_mat.R_fb[8] = ((float)((s32)(((*(Mat_RxBuffer+170))<<24) + ((*(Mat_RxBuffer+169))<<16) + ((*(Mat_RxBuffer+168))<<8) + (*(Mat_RxBuffer+167)))))/10000000;
-			
-		_mat.W_fb.x = ((float)((s32)(((*(Mat_RxBuffer+174))<<24) + ((*(Mat_RxBuffer+173))<<16) + ((*(Mat_RxBuffer+172))<<8) + (*(Mat_RxBuffer+171)))))/10000000;
-		_mat.W_fb.y = ((float)((s32)(((*(Mat_RxBuffer+178))<<24) + ((*(Mat_RxBuffer+177))<<16) + ((*(Mat_RxBuffer+176))<<8) + (*(Mat_RxBuffer+175)))))/10000000;
-		_mat.W_fb.z = ((float)((s32)(((*(Mat_RxBuffer+182))<<24) + ((*(Mat_RxBuffer+181))<<16) + ((*(Mat_RxBuffer+180))<<8) + (*(Mat_RxBuffer+179)))))/10000000;
-			
-		_mat.moment.x = ((float)((s32)(((*(Mat_RxBuffer+186))<<24) + ((*(Mat_RxBuffer+185))<<16) + ((*(Mat_RxBuffer+184))<<8) + (*(Mat_RxBuffer+183)))))/10000000;
-		_mat.moment.y = ((float)((s32)(((*(Mat_RxBuffer+190))<<24) + ((*(Mat_RxBuffer+189))<<16) + ((*(Mat_RxBuffer+188))<<8) + (*(Mat_RxBuffer+187)))))/10000000;
-		_mat.moment.z = ((float)((s32)(((*(Mat_RxBuffer+194))<<24) + ((*(Mat_RxBuffer+193))<<16) + ((*(Mat_RxBuffer+192))<<8) + (*(Mat_RxBuffer+191)))))/10000000;
+		_mat.W_fb.x = ((float)((s32)(((*(Mat_RxBuffer+162))<<24) + ((*(Mat_RxBuffer+161))<<16) + ((*(Mat_RxBuffer+160))<<8) + (*(Mat_RxBuffer+159)))))/10000000;
+		_mat.W_fb.y = ((float)((s32)(((*(Mat_RxBuffer+166))<<24) + ((*(Mat_RxBuffer+165))<<16) + ((*(Mat_RxBuffer+164))<<8) + (*(Mat_RxBuffer+163)))))/10000000;
+		_mat.W_fb.z = ((float)((s32)(((*(Mat_RxBuffer+170))<<24) + ((*(Mat_RxBuffer+169))<<16) + ((*(Mat_RxBuffer+168))<<8) + (*(Mat_RxBuffer+167)))))/10000000;
 		
-		_mat.zP.x = ((float)((s32)(((*(Mat_RxBuffer+198))<<24) + ((*(Mat_RxBuffer+197))<<16) + ((*(Mat_RxBuffer+196))<<8) + (*(Mat_RxBuffer+195)))))/10000000;
-		_mat.zP.y = ((float)((s32)(((*(Mat_RxBuffer+202))<<24) + ((*(Mat_RxBuffer+201))<<16) + ((*(Mat_RxBuffer+200))<<8) + (*(Mat_RxBuffer+199)))))/10000000;
-		_mat.zP.z = ((float)((s32)(((*(Mat_RxBuffer+206))<<24) + ((*(Mat_RxBuffer+205))<<16) + ((*(Mat_RxBuffer+204))<<8) + (*(Mat_RxBuffer+203)))))/10000000;
-		
-		_mat.zR.x = ((float)((s32)(((*(Mat_RxBuffer+210))<<24) + ((*(Mat_RxBuffer+209))<<16) + ((*(Mat_RxBuffer+208))<<8) + (*(Mat_RxBuffer+207)))))/10000000;
-		_mat.zR.y = ((float)((s32)(((*(Mat_RxBuffer+214))<<24) + ((*(Mat_RxBuffer+213))<<16) + ((*(Mat_RxBuffer+212))<<8) + (*(Mat_RxBuffer+211)))))/10000000;
-		_mat.zR.z = ((float)((s32)(((*(Mat_RxBuffer+218))<<24) + ((*(Mat_RxBuffer+217))<<16) + ((*(Mat_RxBuffer+216))<<8) + (*(Mat_RxBuffer+215)))))/10000000;
-		
+		//用于控制单元测试时用
 		CtrlTask();
 		
-		SendWrench();
+		// 选择以测试不同模块
+		//SendPD();				//测试单独PD模块	
+		//SendSMC();			//测试单独SMC模块
+		//SendDOB();		//测试ndob模块
+		//SendAR();			//测试adaptive模块
+		
 	}
 }
 
@@ -186,10 +175,6 @@ Vector3f_t GetMatAccDes(void)
 {
 	return _mat.acc_des;
 }
-Vector3f_t GetMatForce(void)
-{
-	return _mat.force;
-}
 
 void GetMatDcmDes(float* dcm)
 {
@@ -211,69 +196,151 @@ Vector3f_t GetMatWdotDes(void)
 {
 	return _mat.Wdot_des;
 }
-Vector3f_t GetMatMoment(void)
-{
-	return _mat.moment;
-}
-Vector3f_t GetMatzP(void)
-{
-	return _mat.zP;
-}
-Vector3f_t GetMatzR(void)
-{
-	return _mat.zR;
-}
 
-//////////////////////////////////////////////////////////////////////////////////////
-//STM32端发送串口信号到Matlab端，
-uint8_t sendBuf[104];
-float Wrench[24];
-#include "disturbanceEst.h"
-#include "ndob.h"
+
+
+uint8_t sendBuf[110];
 /**********************************************************************************************************
-*函 数 名: SendWrench
-*功能说明: 发送控制效果相关数据到Ros端，通过usart3
+*函 数 名: SendPD
+*功能说明: 发送PD控制效果相关数据到Ros端，通过usart2
 *形    参: void
 *返 回 值: void
 **********************************************************************************************************/
-void SendWrench(void)
+float pdData[6];
+void SendPD(void)
 {
-//	static uint16_t loop_cnt = 0;
-//	if(loop_cnt%10==0)
-//	{
+	uint8_t _cnt = 0;
+		
+		// 控制器生成控制效果 （机体坐标）
+		pdData[0] = _ctrl.F_b.x;
+		pdData[1] = _ctrl.F_b.y;
+		pdData[2] = _ctrl.F_b.z;
+		pdData[3] = _ctrl.M_b.x;
+		pdData[4] = _ctrl.M_b.y;
+		pdData[5] = _ctrl.M_b.z;
+		
+		// 往发送buf里装填字符串
+		sendBuf[_cnt++] = 0xAA;
+		sendBuf[_cnt++] = MYHWADDR;	//数据发送端识别码
+		sendBuf[_cnt++] = 24;
+		
+		uint32_t check_sum = sendBuf[0]+sendBuf[1]+sendBuf[2];
+		for(int i=0; i<6; i++)
+		{
+			int32_t Datai = pdData[i]*10000000;
+			
+			sendBuf[3+i*4] = BYTE0(Datai);
+			sendBuf[4+i*4] = BYTE1(Datai);
+			sendBuf[5+i*4] = BYTE2(Datai);
+			sendBuf[6+i*4] = BYTE3(Datai);
+			check_sum += (sendBuf[3+i*4]+sendBuf[4+i*4]+sendBuf[5+i*4]+sendBuf[6+i*4]);
+		}
+		sendBuf[27] = (uint8_t)check_sum%256;
+		
+		Usart2_Send(sendBuf, 28);
+		//Usart3_Send(sendBuf, 28);
+}
+
+/**********************************************************************************************************
+*函 数 名: SendSMC
+*功能说明: 发送SMC控制效果相关数据到Ros端，通过usart2
+*形    参: void
+*返 回 值: void
+**********************************************************************************************************/
+#include "smc.h"
+float smcData[18];
+void SendSMC(void)
+{
+	uint8_t _cnt = 0;
+		
+		// 控制器生成控制效果 （机体坐标）
+		smcData[0] = _ctrl.F_b.x;
+		smcData[1] = _ctrl.F_b.y;
+		smcData[2] = _ctrl.F_b.z;
+		smcData[3] = _ctrl.M_b.x;
+		smcData[4] = _ctrl.M_b.y;
+		smcData[5] = _ctrl.M_b.z;
+	
+		// Fa Fs
+		smcData[6] = _smc.Fa.x;
+		smcData[7] = _smc.Fa.y;
+		smcData[8] = _smc.Fa.z;
+		smcData[9] = _smc.Fs.x;
+		smcData[10] = _smc.Fs.y;
+		smcData[11] = _smc.Fs.z;
+	
+		// Ma Ms 
+		smcData[12] = _smc.Ma.x;
+		smcData[13] = _smc.Ma.y;
+		smcData[14] = _smc.Ma.z;
+		smcData[15] = _smc.Ms.x;
+		smcData[16] = _smc.Ms.y;
+		smcData[17] = _smc.Ms.z;
+		
+		// 往发送buf里装填字符串
+		sendBuf[_cnt++] = 0xAA;
+		sendBuf[_cnt++] = MYHWADDR;	//数据发送端识别码
+		sendBuf[_cnt++] = 72;
+		
+		uint32_t check_sum = sendBuf[0]+sendBuf[1]+sendBuf[2];
+		for(int i=0; i<18; i++)
+		{
+			int32_t Datai = smcData[i]*10000000;
+			
+			sendBuf[3+i*4] = BYTE0(Datai);
+			sendBuf[4+i*4] = BYTE1(Datai);
+			sendBuf[5+i*4] = BYTE2(Datai);
+			sendBuf[6+i*4] = BYTE3(Datai);
+			check_sum += (sendBuf[3+i*4]+sendBuf[4+i*4]+sendBuf[5+i*4]+sendBuf[6+i*4]);
+		}
+		sendBuf[75] = (uint8_t)check_sum%256;
+		
+		Usart2_Send(sendBuf, 76);
+}
+
+#include "ndob.h"
+/**********************************************************************************************************
+*函 数 名: SendDOB
+*功能说明: 发送ndob相关数据到Ros端，通过usart2
+*形    参: void
+*返 回 值: void
+**********************************************************************************************************/
+float dobData[24];
+void SendDOB(void)
+{
 		uint8_t _cnt = 0;
 		
-		// 控制器生成控制效果
-		Wrench[0] = _ctrl_only.F_b.x;
-		Wrench[1] = _ctrl_only.F_b.y;
-		Wrench[2] = _ctrl_only.F_b.z;
-		Wrench[3] = _ctrl_only.M_b.x;
-		Wrench[4] = _ctrl_only.M_b.y;
-		Wrench[5] = _ctrl_only.M_b.z;
+		// 控制器生成控制效果 （机体坐标）
+		dobData[0] = _ctrl.F_b.x;
+		dobData[1] = _ctrl.F_b.y;
+		dobData[2] = _ctrl.F_b.z;
+		dobData[3] = _ctrl.M_b.x;
+		dobData[4] = _ctrl.M_b.y;
+		dobData[5] = _ctrl.M_b.z;
 		
-		// 扰动估计（惯性坐标系中）
-		Wrench[6] = _dob.F_I.x;
-		Wrench[7] = _dob.F_I.y;
-		Wrench[8] = _dob.F_I.z;
-		Wrench[9] = _dob._est.M_b.x;
-		Wrench[10] = _dob._est.M_b.y;
-		Wrench[11] = _dob._est.M_b.z;
+		// 扰动估计（惯性坐标系）
+		dobData[6] = _dob.F_I.x;
+		dobData[7] = _dob.F_I.y;
+		dobData[8] = _dob.F_I.z;
+		dobData[9] = _dob.M_b.x;
+		dobData[10] = _dob.M_b.y;
+		dobData[11] = _dob.M_b.z;
 	
 		// zP zR
-		Wrench[12] = _dob.zP.x;
-		Wrench[13] = _dob.zP.y;
-		Wrench[14] = _dob.zP.z;
-		Wrench[15] = _dob.zR.x;
-		Wrench[16] = _dob.zR.y;
-		Wrench[17] = _dob.zR.z;
+		dobData[12] = _dob.zP.x;
+		dobData[13] = _dob.zP.y;
+		dobData[14] = _dob.zP.z;
+		dobData[15] = _dob.zR.x;
+		dobData[16] = _dob.zR.y;
+		dobData[17] = _dob.zR.z;
 		
 		// zP_dot zR_dot
-		Wrench[18] = _dob.zP_dot.x;
-		Wrench[19] = _dob.zP_dot.y;
-		Wrench[20] = _dob.zP_dot.z;
-		Wrench[21] = _dob.zR_dot.x;
-		Wrench[22] = _dob.zR_dot.y;
-		Wrench[23] = _dob.zR_dot.z;
+		dobData[18] = _dob.zP_dot.x;
+		dobData[19] = _dob.zP_dot.y;
+		dobData[20] = _dob.zP_dot.z;
+		dobData[21] = _dob.zR_dot.x;
+		dobData[22] = _dob.zR_dot.y;
+		dobData[23] = _dob.zR_dot.z;
 		
 		
 		// 往发送buf里装填字符串
@@ -284,7 +351,7 @@ void SendWrench(void)
 		uint32_t check_sum = sendBuf[0]+sendBuf[1]+sendBuf[2];
 		for(int i=0; i<24; i++)
 		{
-			int32_t Datai = Wrench[i]*10000000;
+			int32_t Datai = dobData[i]*10000000;
 			
 			sendBuf[3+i*4] = BYTE0(Datai);
 			sendBuf[4+i*4] = BYTE1(Datai);
@@ -295,19 +362,180 @@ void SendWrench(void)
 		sendBuf[99] = (uint8_t)check_sum%256;
 		
 		Usart2_Send(sendBuf, 100);
-//	}
+}
+
+
+#include "adaptive.h"
+/**********************************************************************************************************
+*函 数 名: SendAR
+*功能说明: 发送adaptive相关数据到Ros端，通过usart2
+*形    参: void
+*返 回 值: void
+**********************************************************************************************************/
+float arData[18];
+void SendAR(void)
+{
+	uint8_t _cnt = 0;
+		
+	// 控制器生成控制效果 （机体坐标）
+	arData[0] = _ctrl.F_b.x;
+	arData[1] = _ctrl.F_b.y;
+	arData[2] = _ctrl.F_b.z;
+	arData[3] = _ctrl.M_b.x;
+	arData[4] = _ctrl.M_b.y;
+	arData[5] = _ctrl.M_b.z;
+		
+	// 扰动估计（惯性坐标系）
+	arData[6] = _ada.F_I.x;
+	arData[7] = _ada.F_I.y;
+	arData[8] = _ada.F_I.z;
+	arData[9] = _ada.M_b.x;
+	arData[10] = _ada.M_b.y;
+	arData[11] = _ada.M_b.z;
+	
+	// dx_dot dR_fot
+	arData[12] = _ada.dx_dot.x;
+	arData[13] = _ada.dx_dot.y;
+	arData[14] = _ada.dx_dot.z;
+	arData[15] = _ada.dR_dot.x;
+	arData[16] = _ada.dR_dot.y;
+	arData[17] = _ada.dR_dot.z;
+				
+		
+	// 往发送buf里装填字符串
+	sendBuf[_cnt++] = 0xAA;
+	sendBuf[_cnt++] = MYHWADDR;	//数据发送端识别码
+	sendBuf[_cnt++] = 72;
+		
+	uint32_t check_sum = sendBuf[0]+sendBuf[1]+sendBuf[2];
+	for(int i=0; i<18; i++)
+	{
+		int32_t Datai = arData[i]*10000000;
+		
+		sendBuf[3+i*4] = BYTE0(Datai);
+		sendBuf[4+i*4] = BYTE1(Datai);
+		sendBuf[5+i*4] = BYTE2(Datai);
+		sendBuf[6+i*4] = BYTE3(Datai);
+		check_sum += (sendBuf[3+i*4]+sendBuf[4+i*4]+sendBuf[5+i*4]+sendBuf[6+i*4]);
+	}
+	sendBuf[75] = (uint8_t)check_sum%256;
+		
+	Usart2_Send(sendBuf, 76);
+}
+
+
+/**********************************************************************************************************
+*函 数 名: SendAttDes
+*功能说明: 发送期望姿态，角速度，通过usart2
+*形    参: void
+*返 回 值: void
+**********************************************************************************************************/
+float AttDes[7];
+void SendAttDes()
+{
+	uint8_t _cnt = 0;
+		
+	// 期望姿态（四元数相关）
+	AttDes[0] = _state.q_des[0];
+	AttDes[1] = _state.q_des[1];
+	AttDes[2] = _state.q_des[2];
+	AttDes[3] = _state.q_des[3];
+	
+	
+	// 期望角速度
+	AttDes[4] = _state.W_des.x;
+	AttDes[5] = _state.W_des.y;
+	AttDes[6] = _state.W_des.z;
+			
+	// 往发送buf里装填字符串
+	sendBuf[_cnt++] = 0xAA;
+	sendBuf[_cnt++] = MYHWADDR;	//数据发送端识别码
+	sendBuf[_cnt++] = 28;
+		
+	uint32_t check_sum = sendBuf[0]+sendBuf[1]+sendBuf[2];
+	for(int i=0; i<7; i++)
+	{
+		int32_t Datai = AttDes[i]*10000000;
+			
+		sendBuf[3+i*4] = BYTE0(Datai);
+		sendBuf[4+i*4] = BYTE1(Datai);
+		sendBuf[5+i*4] = BYTE2(Datai);
+		sendBuf[6+i*4] = BYTE3(Datai);
+		check_sum += (sendBuf[3+i*4]+sendBuf[4+i*4]+sendBuf[5+i*4]+sendBuf[6+i*4]);
+	}
+	sendBuf[31] = (uint8_t)check_sum%256;
+		
+	Usart2_Send(sendBuf, 32);
 }
 
 
 
-
-
-
-
-
-
-
-
+/**********************************************************************************************************
+*函 数 名: SendLog
+*功能说明: 发送需要log的信号，通过usart2
+*形    参: void
+*返 回 值: void
+**********************************************************************************************************/
+float logData[26];
+void SendLog(void)
+{
+	uint8_t _cnt = 0;
+		
+	// 位置相关数据
+	logData[0] = _state.pos_des.x;
+	logData[1] = _state.pos_des.y;
+	logData[2] = _state.pos_des.z;
+	logData[3] = _state.pos_fb.x;
+	logData[4] = _state.pos_fb.y;
+	logData[5] = _state.pos_fb.z;
+		
+	// 姿态相关数据（四元数相关）
+	logData[6] = _state.q_des[0];
+	logData[7] = _state.q_des[1];
+	logData[8] = _state.q_des[2];
+	logData[9] = _state.q_des[3];
+	logData[10] = _state.q_fb[0];
+	logData[11] = _state.q_fb[1];
+	logData[12] = _state.q_fb[2];
+	logData[13] = _state.q_fb[3];
+	
+	// 由控制器单独生成的控制效果
+	logData[14] = _ctrl_only.F_b.x;
+	logData[15] = _ctrl_only.F_b.y;
+	logData[16] = _ctrl_only.F_b.z;
+	logData[17] = _ctrl_only.M_b.x;
+	logData[18] = _ctrl_only.M_b.y;
+	logData[19] = _ctrl_only.M_b.z;
+		
+	// 扰动估计 表示在惯性坐标系中
+	logData[20] = _est.F_I.x;
+	logData[21] = _est.F_I.y;
+	logData[22] = _est.F_I.z;
+	logData[23] = _est.M_b.x;
+	logData[24] = _est.M_b.y;
+	logData[25] = _est.M_b.z;
+		
+		
+	// 往发送buf里装填字符串
+	sendBuf[_cnt++] = 0xAA;
+	sendBuf[_cnt++] = MYHWADDR;	//数据发送端识别码
+	sendBuf[_cnt++] = 104;
+		
+	uint32_t check_sum = sendBuf[0]+sendBuf[1]+sendBuf[2];
+	for(int i=0; i<26; i++)
+	{
+		int32_t Datai = logData[i]*10000000;
+			
+		sendBuf[3+i*4] = BYTE0(Datai);
+		sendBuf[4+i*4] = BYTE1(Datai);
+		sendBuf[5+i*4] = BYTE2(Datai);
+		sendBuf[6+i*4] = BYTE3(Datai);
+		check_sum += (sendBuf[3+i*4]+sendBuf[4+i*4]+sendBuf[5+i*4]+sendBuf[6+i*4]);
+	}
+	sendBuf[107] = (uint8_t)check_sum%256;
+		
+	Usart2_Send(sendBuf, 108);
+}
 
 
 
