@@ -58,25 +58,25 @@ static void ParamDataReset(void)
 	Param.data[CONTROLLER_SMC_csP_Y] = 1.0;
 	Param.data[CONTROLLER_SMC_csP_Z] = 1.0;
 	
-	Param.data[CONTROLLER_SMC_HsP_X] = 1.0;
-	Param.data[CONTROLLER_SMC_HsP_Y] = 1.0;
-	Param.data[CONTROLLER_SMC_HsP_Z] = 1.0;
+	Param.data[CONTROLLER_SMC_HsP_X] = 0.1;
+	Param.data[CONTROLLER_SMC_HsP_Y] = 0.1;
+	Param.data[CONTROLLER_SMC_HsP_Z] = 0.1;
 	
 	Param.data[CONTROLLER_SMC_ksP_X] = 1.0;
 	Param.data[CONTROLLER_SMC_ksP_Y] = 1.0;
 	Param.data[CONTROLLER_SMC_ksP_Z] = 1.0;
 	
-	Param.data[CONTROLLER_SMC_csR_X] = 0.2;
-	Param.data[CONTROLLER_SMC_csR_Y] = 0.2;
-	Param.data[CONTROLLER_SMC_csR_Z] = 0.2;
+	Param.data[CONTROLLER_SMC_csR_X] = 6.0;	//  =ksR/KR
+	Param.data[CONTROLLER_SMC_csR_Y] = 6.0;
+	Param.data[CONTROLLER_SMC_csR_Z] = 6.0;
 
 	Param.data[CONTROLLER_SMC_HsR_X] = 0.1;
 	Param.data[CONTROLLER_SMC_HsR_Y] = 0.1;
 	Param.data[CONTROLLER_SMC_HsR_Z] = 0.1;
 	
-	Param.data[CONTROLLER_SMC_ksR_X] = 0.05;
-	Param.data[CONTROLLER_SMC_ksR_Y] = 0.05;
-	Param.data[CONTROLLER_SMC_ksR_Z] = 0.04;
+	Param.data[CONTROLLER_SMC_ksR_X] = 0.2;
+	Param.data[CONTROLLER_SMC_ksR_Y] = 0.2;
+	Param.data[CONTROLLER_SMC_ksR_Z] = 0.2;
 	
 	param_save_cnt = 1;
 }

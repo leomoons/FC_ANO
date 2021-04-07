@@ -7,6 +7,7 @@ enum
 {
 	MANUAL = 0,
 	MISSION,
+	OBSERVER,	//ÓÐÈÅ¶¯¹Û²âÆ÷
 	FAILSAFE
 };
 

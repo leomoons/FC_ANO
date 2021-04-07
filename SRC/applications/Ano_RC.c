@@ -289,7 +289,7 @@ void RC_duty_task(u8 dT_ms) //建议2ms调用一次
 						else if(CH_N[i]>-100 && CH_N[i]<100)
 							SetFlightMode(MISSION);
 						else if(CH_N[i]>300)
-							SetFlightMode(FAILSAFE);
+							SetFlightMode(OBSERVER);
 					}
 					if(i==AUX2 && CH_N[i]>100)
 					{

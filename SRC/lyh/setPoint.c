@@ -117,18 +117,20 @@ void AttUpdate(float dT_s, float T)
 //	IntegrateIteration(dT_s);
 	
 	/*******姿态的微分迭代生成********/
-	float pit = M_PI/10*sinf(M_PI/30*T);
-	float rol = M_PI/10*cosf(M_PI/30*T);
+//	float pit = M_PI/20*sinf(M_PI/1*T);
+//	float rol = M_PI/20*cosf(M_PI/1*T);
+	float pit = 0.0f;
+	float rol = 0.0f;
 	float yaw = 0.0f;
 	
 	_set.att[0] = cosf(pit)*cosf(yaw);
-  _set.att[1] = cosf(pit)*sinf(yaw);
-  _set.att[2] = -sinf(pit);
-  _set.att[3] = sinf(rol)*sinf(pit)*cosf(yaw) - cosf(rol)*sinf(yaw);
+  _set.att[1] = sinf(rol)*sinf(pit)*cosf(yaw) - cosf(rol)*sinf(yaw);
+  _set.att[2] = cosf(rol)*sinf(pit)*cosf(yaw) + sinf(rol)*sinf(yaw);
+  _set.att[3] = cosf(pit)*sinf(yaw);
   _set.att[4] = sinf(rol)*sinf(pit)*sinf(yaw) + cosf(rol)*cosf(yaw);
-  _set.att[5] = sinf(rol)*cosf(pit);
-  _set.att[6] = cosf(rol)*sinf(pit)*cosf(yaw) + sinf(rol)*sinf(yaw);
-  _set.att[7] = cosf(rol)*sinf(pit)*sinf(yaw) - sinf(rol)*cosf(yaw);
+  _set.att[5] = cosf(rol)*sinf(pit)*sinf(yaw) - sinf(rol)*cosf(yaw);
+  _set.att[6] = -sinf(pit);
+  _set.att[7] = sinf(rol)*cosf(pit);
   _set.att[8] = cosf(rol)*cosf(pit);
 	
 	DifferentialIteration(dT_s);
@@ -148,7 +150,7 @@ void SetPointUpdate(void)
 	float dT_s;
 	float T;
 	
-	if(GetFlightMode() == MISSION)		
+	if(GetFlightMode() == MISSION || GetFlightMode() == OBSERVER)		
 	{
 		T_now = GetSysTime_us();
 		T = (T_now-T_start)*1e-6f;

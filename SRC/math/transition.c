@@ -39,39 +39,37 @@ void DCM_to_Quater(float* quat, float* dcm)
 	float trace = dcm[0] + dcm[4] +dcm[8];
 	if(trace > 0.0f)
 	{
-		float s = 0.5f / Sqrt(trace + 1.0f);
-		quat[0] = 0.25f / s;
-		quat[1] = (dcm[7] - dcm[5]) * s;
-		quat[2] = (dcm[2] - dcm[6]) * s;
-		quat[3] = (dcm[3] - dcm[1]) * s;
+		float s = Sqrt(trace + 1.0f) * 2.0f;
+		quat[0] = 0.25f * s;
+		quat[1] = (dcm[7] - dcm[5]) / s;
+		quat[2] = (dcm[2] - dcm[6]) / s;
+		quat[3] = (dcm[3] - dcm[1]) / s;
+	}
+	else if(dcm[0]>dcm[4] && dcm[0]>dcm[8])
+	{
+		float s = 2.0f * Sqrt(1.0f + dcm[0] - dcm[4] - dcm[8]);
+		quat[0] = (dcm[7] - dcm[5]) / s;
+		quat[1] = 0.25f * s;
+		quat[2] = (dcm[1] + dcm[3]) / s;
+		quat[3] = (dcm[2] + dcm[6]) / s;
+	}
+	else if(dcm[4] > dcm[8])
+	{
+		float s = 2.0f * Sqrt(1.0f + dcm[4] - dcm[0] - dcm[8]);
+		quat[0] = (dcm[2] - dcm[6]) / s;
+		quat[1] = (dcm[1] + dcm[3]) / s;
+		quat[2] = 0.25f * s;
+		quat[3] = (dcm[5] + dcm[7]) / s;
 	}
 	else
 	{
-		if(dcm[0]>dcm[4] && dcm[0]>dcm[8])
-		{
-			float s = 2.0f * Sqrt(1.0f + dcm[0] - dcm[4] - dcm[8]);
-			quat[0] = (dcm[7] - dcm[5]) / s;
-			quat[1] = 0.25f * s;
-			quat[2] = (dcm[1] + dcm[3]) / s;
-			quat[3] = (dcm[2] + dcm[6]) / s;
-		}
-		else if(dcm[4] > dcm[8])
-		{
-			float s = 2.0f * Sqrt(1.0f + dcm[4] - dcm[0] - dcm[8]);
-			quat[0] = (dcm[2] - dcm[6]) / s;
-			quat[1] = (dcm[1] + dcm[3]) / s;
-			quat[2] = 0.25f * s;
-			quat[3] = (dcm[5] + dcm[7]) / s;
-		}
-		else
-		{
-			float s = 2.0f * Sqrt(1.0f + dcm[8] - dcm[0] - dcm[4]);
-			quat[0] = (dcm[3] - dcm[1]) / s;
-			quat[1] = (dcm[2] + dcm[6]) / s;
-			quat[2] = (dcm[5] + dcm[7]) / s;
-			quat[3] = 0.25f * s;
-		}
-	}	
+		float s = 2.0f * Sqrt(1.0f + dcm[8] - dcm[0] - dcm[4]);
+		quat[0] = (dcm[3] - dcm[1]) / s;
+		quat[1] = (dcm[2] + dcm[6]) / s;
+		quat[2] = (dcm[5] + dcm[7]) / s;
+		quat[3] = 0.25f * s;
+	}
+	
 }
 
 

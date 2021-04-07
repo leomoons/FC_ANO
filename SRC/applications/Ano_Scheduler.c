@@ -39,10 +39,13 @@
 
 #include "param.h"
 #include "lyhDecode.h"
-#include "optitrack.h"
 #include "controller.h"
 #include "motor.h"
 #include "setPoint.h"
+#include "ros.h"
+#include "mat.h"
+#include "Ano_DTv7.h"
+
 
 u32 test_dT_1000hz[3],test_rT[6];
 
@@ -72,11 +75,10 @@ static void Loop_1000Hz(void)	//1ms执行一次
 	Swtich_State_Task(1);
 	
 	/*光流融合数据准备任务*/
-	ANO_OF_Data_Prepare_Task(0.001f);
+	//ANO_OF_Data_Prepare_Task(0.001f);
 
 
-	/*数传数据交换*/
-	ANO_DT_Data_Exchange();
+	
 
 	//LYH数据解析
 	LYH_Receive_Loop();
@@ -91,13 +93,11 @@ static void Loop_1000Hz(void)	//1ms执行一次
 static void Loop_500Hz(void)	//2ms执行一次
 {	
 	/*姿态角速度环控制*/
-	Att_1level_Ctrl(2*1e-3f);
+	//Att_1level_Ctrl(2*1e-3f);
 	
 	/*UWB数据获取*/
-	Ano_UWB_Get_Data_Task(2);	
+	//Ano_UWB_Get_Data_Task(2);	
 	
-	// 获取optitrack数据
-	Opti_Get_Data_Task();
 	
 	//期望轨迹生成
 	SetPointUpdate();
@@ -105,8 +105,10 @@ static void Loop_500Hz(void)	//2ms执行一次
 	// 主控制器
 	CtrlTask();
 	
-	/*电机输出控制*/
+	//电机输出控制
 	MotorCtrlTask();
+	
+
 }
 
 static void Loop_200Hz(void)	//5ms执行一次
@@ -115,7 +117,15 @@ static void Loop_200Hz(void)	//5ms执行一次
 	calculate_RPY();
 	
 	/*姿态角度环控制*/
-	Att_2level_Ctrl(5e-3f,CH_N);
+	//Att_2level_Ctrl(5e-3f,CH_N);
+	
+	// 获取matlab发送的数据
+	//Mat_Get_Data_Task();
+	
+	/*数传数据交换*/
+	//ANO_DT_Data_Exchange();
+	ANO_DT_TaskMs();
+	
 	
 }
 
@@ -146,6 +156,15 @@ static void Loop_100Hz(void)	//10ms执行一次
 
 	/*灯光控制*/	
 	LED_Task2(10);
+	
+	// 与Ros端进行数据交互
+//	Ros_Get_Data_Task();
+//	Send_to_Ros();
+	
+  // 发送期望的姿态数据
+	//SendAttDes();
+
+
 //////////////////////////////////////////////////////////////////////		
 			test_rT[1]= GetSysTime_us ();
 			test_rT[2] = (u32)(test_rT[1] - test_rT[0]) ;	
@@ -172,6 +191,9 @@ static void Loop_50Hz(void)	//20ms执行一次
 	ANO_LTracking_Task(20);
 	/*OPMV控制任务*/
 	ANO_OPMV_Ctrl_Task(20);
+	
+	
+	
 }
 
 static void Loop_20Hz(void)	//50ms执行一次
@@ -182,6 +204,9 @@ static void Loop_20Hz(void)	//50ms执行一次
 	Thermostatic_Ctrl_Task(50);
 	
 	ParamSaveToFlash();		//控制器参数写入flash
+	
+	//发送需要log的数据
+	//SendLog();
 }
 
 static void Loop_2Hz(void)	//500ms执行一次
